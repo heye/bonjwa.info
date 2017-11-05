@@ -1,0 +1,342 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="twitter:card" content="summary" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:900" rel="stylesheet">
+    <style>
+
+
+    body {
+        margin: 0px;
+        padding: 0px;
+        font-family: "Roboto", sans-serif;
+        background-color:#2f2d2d;/*#F1F1F1;/*#141414;*/
+        color:#e3e3e3;
+        font-size: 16px;
+    }
+    footer {
+        bottom: 0px;
+        width: 100%;
+        background-color: #131313; /*#292929*/
+        text-align: center;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    a {
+        color: #e3e3e3;
+        text-decoration: none;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .highlightBackground {
+        background-color: #131313;
+    }
+
+    #header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        background-color: #131313; /*#292929*/
+        line-height: 22px;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    #main {
+        padding: 1rem;
+        margin-top: 2rem;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 2rem;
+        width: 80%;
+        min-height: 100%;
+        background-color: #2f2d2d;
+    }
+    @media screen and (max-width: 768px) {
+        #main {
+            width: 100%;
+        }
+    }
+
+
+    .standardButton {
+        cursor: pointer;
+        background-color: #131313;/*#292929*/
+        border-bottom: 3px solid #131313;
+    }
+
+    .standardButton:hover {
+        border-bottom: 3px solid #e3e3e3;
+    }
+
+    #header div {
+        padding-top: 21px;
+        padding-bottom: 21px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    /* ----- index specific ----- */
+
+
+    #selector {
+        display: flex;
+        justify-content: center;
+    }
+
+    .timeNavButton {
+        margin: 0.25rem;
+    }
+
+    #rwnd {
+        padding: 10px;
+    }
+
+    #pageDateButton {
+        padding: 10px;
+    }
+
+    #fwd {
+        padding: 10px;
+    }
+
+    .fullImage{
+        width: 100%;
+    }
+
+    .oneDayContainer {
+        /*background: #222;*/
+        margin-bottom: 0.5rem;
+        border-bottom: 3px solid #222;
+    }
+
+    .dayShareLinks {
+        width:100%;
+        padding: 0.25rem;
+        text-align: right;
+    }
+
+    </style>
+</head>
+<body onload="onPageLoad()">
+    <div id="header">
+        <div id="bonjwainfo" class="standardButton">
+            <a href="http://192.168.2.28/bonjwa.info/">BONJWA.INFO</a>
+        </div>
+        <div class="standardButton">
+            <a href="http://192.168.2.28/bonjwa.info/chat.html">CHAT</a>
+        </div>
+        <div class="standardButton">
+            <a href="http://192.168.2.28/bonjwa.info/about.html">ABOUT</a>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="selector">
+            <div id="rwnd" class="standardButton timeNavButton" onclick="loadPrevious()">
+                < zurück
+            </div>
+            <div id="fwd" class="standardButton timeNavButton" onclick="loadNext()">
+                weiter >
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="oneDayContainer">
+                <div id="day0"></div>
+                <div id="day0Sharing" class="dayShareLinks">
+                    <a class="twitter-share-button"
+                        href="https://twitter.com/intent/tweet?text=Hello%20world"
+                        data-size="large">
+                        Tweet
+                    </a>
+                </div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day1"></div>
+                <div id="day1Sharing" class="dayShareLinks">
+                    <a class="twitter-share-button"
+                        href="https://twitter.com/intent/tweet?text=Hello%20world"
+                        data-size="large">
+                        Tweet
+                    </a>
+                </div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day2"></div>
+                <div id="day2Sharing" class="dayShareLinks">
+                    <a class="twitter-share-button"
+                        href="https://twitter.com/intent/tweet?text=Hello%20world"
+                        data-size="large">
+                        Tweet
+                    </a>
+                </div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day3"></div>
+                <div id="day3Sharing" class="dayShareLinks">
+                    <a class="twitter-share-button"
+                        href="https://twitter.com/intent/tweet?text=Hello%20world"
+                        data-size="large">
+                        Tweet
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer  class="highlightBackground">
+        <a href="https://www.bonjwa.info/impressum.html">Impressum</a>
+    </footer>
+
+
+    <script language="JavaScript">       
+        //state variables
+        var urlDate = new Date();
+        var dayShift = 0;
+        var baseURL = "http://192.168.2.28/bonjwa.info/index.html";
+
+        function onPageLoad() {
+            console.log("load complete");
+
+            //var inhalt = document.getElementById("pageDateButton");
+            //inhalt.textContent = pageDateName + ", " + pageDateDay + "." + pageDateMonth + "." + pageDateYear;
+
+
+            var url = new URL(window.location.href);
+            pageDateDay = url.searchParams.get("d");
+            pageDateMonth = url.searchParams.get("m");
+            pageDateYear = url.searchParams.get("y");
+
+            console.log(pageDateDay);
+            console.log(pageDateMonth);
+            console.log(pageDateYear);
+            
+            //only load day if link is correct
+            if(pageDateDay && pageDateMonth && pageDateYear){
+                urlDate = new Date(pageDateYear, pageDateMonth-1, pageDateDay);      
+            }
+
+            
+            update();
+        }
+
+        function update(){ 
+            var oneDay = urlDate.getDate()+dayShift;
+            var oneMonth = urlDate.getMonth()+1;
+            var oneYear = urlDate.getFullYear();
+            while(oneDay < 1){
+                oneDay = oneDay + 31;
+                oneMonth = oneMonth -1;
+            }
+
+            if(oneMonth < 1){
+                oneMonth = 12;
+                oneYear = oneYear -1;
+            }
+
+            var currentURL = baseURL + "?d=" + oneDay + "&m=" + oneMonth + "&y=" + oneYear;
+            setURL(currentURL);
+
+            loadWeek(oneDay, oneMonth, oneYear);
+        }
+
+        function setURL(newURL){              
+            if (window.history.replaceState) {
+                console.log("replacing");
+
+                //prevents browser from storing history with each change:
+                window.history.replaceState("statedata", "test", newURL);
+            }
+        }
+
+        function loadPrevious() {
+            console.log("TODO: load previous")
+
+            //TODO: load pageDate-1 
+            dayShift = dayShift - 1;
+            update();
+        }
+
+        function loadNext() {
+            console.log("TODO: load next");
+
+            //TODO: load pageDate+1 
+            dayShift = dayShift + 1;
+            update(dayShift);
+        }
+
+        function loadWeek(baseDay, baseMonth, baseYear){
+            for(var i=0; i <7; i++){
+                var oneDay = urlDate.getDate()-1-i+dayShift;
+                var oneMonth = urlDate.getMonth()+1;
+                var oneYear = urlDate.getFullYear();
+                while(oneDay < 1){
+                    oneDay = oneDay + 31;
+                    oneMonth = oneMonth -1;
+                }
+
+                if(oneMonth < 1){
+                    oneMonth = 12;
+                    oneYear = oneYear -1;
+                }
+
+                var filename = oneDay + "-" + oneMonth + "-" + oneYear;
+
+                loadDay(i, filename)
+            }
+        }
+
+        function loadDay(number, filename) {
+            console.log("loading " + filename + " to " + number);
+
+
+            var queryURL = "http://192.168.2.28/bonjwa.info/" + filename + ".html";
+            var dayDivID = "day" + number;
+            var dayShareDivID = dayDivID + "Sharing";
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById(dayDivID).innerHTML = this.responseText;
+                    /*document.getElementById(dayShareDivID).innerHTML = `<a class='twitter-share-button'
+                        href='https://twitter.com/intent/tweet?text=Hello%20world'
+                        data-size='large'>
+                        Tweet</a>`;*/
+                }
+            };
+            xhttp.open("GET",queryURL , true);
+            xhttp.send();
+        }
+    </script>
+
+
+
+
+    <script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "https://platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+
+  return t;
+}(document, "script", "twitter-wjs"));</script>
+</body>
+</html>
