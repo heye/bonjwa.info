@@ -29,6 +29,20 @@ def timestampToDate(timestamp):
     year = localStreamStart.strftime('%Y')
     return day + "-" + month + "-" + year
 
+def timestampToDay(timestamp):
+    someTime = datetime.fromtimestamp(timestamp)
+    localStreamStart = utc_to_local(someTime)
+    return localStreamStart.strftime('%d').lstrip('0')
+def timestampToMonth(timestamp):
+    someTime = datetime.fromtimestamp(timestamp)
+    localStreamStart = utc_to_local(someTime)
+    return localStreamStart.strftime('%m').lstrip('0')
+
+def timestampToYear(timestamp):
+    someTime = datetime.fromtimestamp(timestamp)
+    localStreamStart = utc_to_local(someTime)
+    return localStreamStart.strftime('%Y')
+
 def weekDayFromTimestamp(timestamp):
     days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
     weekday = datetime.fromtimestamp(timestamp).weekday()
@@ -122,6 +136,9 @@ def buildAbstract(streamTimes, gameTimes, workingDateTimestamp):
     oneDayAbstract = oneDayTemplateString.replace("DAY_TITLE", oneDayTitle)
     oneDayAbstract = oneDayAbstract.replace("VOD_LINK_BOX", vodLinkBlock)
     oneDayAbstract = oneDayAbstract.replace("DAY_VIEW_GRAPH", timestampToDate(workingDateTimestamp))
+    oneDayAbstract = oneDayAbstract.replace("DATE_DAY", timestampToDay(workingDateTimestamp))
+    oneDayAbstract = oneDayAbstract.replace("DATE_MONTH", timestampToMonth(workingDateTimestamp))
+    oneDayAbstract = oneDayAbstract.replace("DATE_YEAR", timestampToYear(workingDateTimestamp))
 
     fileName = timestampToDate(workingDateTimestamp) + ".html"    
     print "GENERATING: " + fileName

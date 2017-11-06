@@ -85,6 +85,10 @@
         max-width: 100% !important;
     }
 
+    .inlineBlock {
+        display: inline-block;
+    }
+
     /* ----- index specific ----- */
 
 
@@ -125,6 +129,10 @@
         text-align: right;
     }
 
+    .oneDayExtended {
+        display: none;
+    }
+
     </style>
 </head>
 <body onload="onPageLoad()">
@@ -133,10 +141,16 @@
             <a href="/">BONJWA.INFO</a>
         </div>
         <div class="standardButton">
-            <a href="/chat.html">CHAT</a>
+            <a href="/week/">WOCHE</a>
         </div>
         <div class="standardButton">
-            <a href="/about.html">ABOUT</a>
+            <a href="/highlights/">HIGHLIGHTS</a>
+        </div>
+        <div class="standardButton">
+            <a href="/chat/">CHAT</a>
+        </div>
+        <div class="standardButton">
+            <a href="/about/">ABOUT</a>
         </div>
     </div>
 
@@ -191,7 +205,9 @@
         //state variables
         var urlDate = new Date();
         var dayShift = 0;
-        var baseURL = "/index.html";
+        //var baseURL = "http://192.168.2.28/bonjwa.info/";
+        var baseURL = "/";
+        var pageIsDayOnly = false;
 
         function onPageLoad() {
             console.log("load complete");
@@ -202,6 +218,10 @@
             pageDateMonth = url.searchParams.get("m");
             pageDateYear = url.searchParams.get("y");
 
+            if(url.searchParams.get("extended")){
+                pageIsDayOnly = true;
+            }
+
             console.log(pageDateDay);
             console.log(pageDateMonth);
             console.log(pageDateYear);
@@ -210,7 +230,6 @@
             if(pageDateDay && pageDateMonth && pageDateYear){
                 urlDate = new Date(pageDateYear, pageDateMonth-1, pageDateDay);      
             }
-
             
             update();
         }
@@ -229,12 +248,20 @@
                 oneYear = oneYear -1;
             }
 
-            var currentURL = baseURL + "?d=" + oneDay + "&m=" + oneMonth + "&y=" + oneYear;
-            setURL(currentURL);
+            var currentURL = baseURL + "index.html?d=" + oneDay + "&m=" + oneMonth + "&y=" + oneYear;
 
-            loadWeek(oneDay, oneMonth, oneYear);
-                                
-                                
+            if(pageIsDayOnly){
+                console.log("pageIsDayOnly = true");
+                var filename = oneDay + "-" + oneMonth + "-" + oneYear;
+                unloadWeek();
+                loadDay(0, filename, true);
+                currentURL = currentURL + "&extended=true";
+            }
+            else{
+                loadWeek(oneDay, oneMonth, oneYear);
+            }               
+                         
+            setURL(currentURL);       
                                 
             var days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
             var dayDate = new Date(urlDate.getTime() + dayShift*60*60*24*1000)
@@ -243,6 +270,13 @@
             var inhalt = document.getElementById("pageDateButton");
             inhalt.textContent = dayName + " " + oneDay + "." + oneMonth + "." + oneYear;
         }
+
+        function showDayExtended(oneDay, oneMonth, oneYear){
+            urlDate = new Date(oneYear, oneMonth-1, oneDay);     
+            pageIsDayOnly = true;
+            update();            
+        }
+
 
         function setURL(newURL){              
             if (window.history.replaceState) {
@@ -270,6 +304,7 @@
         }
 
         function loadWeek(baseDay, baseMonth, baseYear){
+            console.log("loading week");
             for(var i=0; i <7; i++){
                 var oneDay = urlDate.getDate()-i+dayShift;
                 var oneMonth = urlDate.getMonth()+1;
@@ -290,11 +325,18 @@
             }
         }
 
-        function loadDay(number, filename) {
+        function unloadWeek(){
+            for(var i=0; i <7; i++){
+                var dayDivID = "day" + i;
+                document.getElementById(dayDivID).innerHTML = "";
+            }
+        }
+
+        function loadDay(number, filename, showExtended) {
             console.log("loading " + filename + " to " + number);
 
 
-            var queryURL = "/" + filename + ".html";
+            var queryURL = baseURL + filename + ".html";
             var dayDivID = "day" + number;
             var dayShareDivID = dayDivID + "Sharing";
 
@@ -302,10 +344,9 @@
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     document.getElementById(dayDivID).innerHTML = this.responseText;
-                    /*document.getElementById(dayShareDivID).innerHTML = `<a class='twitter-share-button'
-                        href='https://twitter.com/intent/tweet?text=Hello%20world'
-                        data-size='large'>
-                        Tweet</a>`;*/
+                    if(showExtended) { 
+                        document.getElementById("oneDayExtened").classList.remove('defaultDisplayNone');
+                    }
                 }
                 else{
                     document.getElementById(dayDivID).innerHTML = "";

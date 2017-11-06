@@ -1,5 +1,8 @@
 <div class="oneDayStats"> 
     <style>
+        .oneDayStats {
+            padding-top: 0.5rem;
+        }
         .vodLinkTitle {
             text-align: center;
             width: 100%;
@@ -44,23 +47,40 @@
         .gameTime {
             font-family: "Roboto", sans-serif;
         }
+
+        .moreInfoLink {
+            padding-right:20px;
+            padding-top:20px;
+            padding-bottom:10px;
+            text-align: right;
+        }
+        .defaultDisplayNone {
+            display: none;
+        }
     </style>    
-    <div class="vodLinkTitle">
+        
+    <div class="vodLinkTitle" onclick="showDayExtended(DATE_DAY, DATE_MONTH, DATE_YEAR)">
         <h2>DAY_TITLE</h2>
     </div>
     <img class="fullImage" src="/DAY_VIEW_GRAPH.png">
-    <div class="vodLinkTitle">
-        <h2>VOD Links</h2>
+    <div id="oneDayExtened" class="defaultDisplayNone">
+        <div class="vodLinkTitle">
+            <h2>VOD Links</h2>
+        </div>
+        <div class="vodLinkBox">
+            VOD_LINK_BOX    
+        </div>
+                
+        <div id="oneDaySharing" class="dayShareLinks">
+            <a class="twitter-share-button"
+                href="https://twitter.com/intent/tweet?text=Hello%20world"
+                data-size="large">
+                Tweet
+            </a>
+        </div>
     </div>
-    <div class="vodLinkBox">
-        VOD_LINK_BOX    
+    <div class="moreInfoLink">
+        <div class="standardButton inlineBlock" onclick="showDayExtended(DATE_DAY, DATE_MONTH, DATE_YEAR)">VODS, Clips, mehr Infos</div>
     </div>
-</div>
 
-<div id="oneDaySharing" class="dayShareLinks">
-    <a class="twitter-share-button"
-        href="https://twitter.com/intent/tweet?text=Hello%20world"
-        data-size="large">
-        Tweet
-    </a>
 </div>
