@@ -4,8 +4,12 @@ from datetime import datetime, date, timedelta
 import time
 import calendar
 import pytz
+import os.path
+import subprocess
+import argparse
 
 local_tz = pytz.timezone('Europe/Moscow')
+webrootPath = "/var/www/bonjwa.info/webroot/"
 
 def utc_to_local(utc_datetime):
     now_timestamp = time.time()
@@ -20,7 +24,15 @@ def timestampToHourMin(timestamp):
 def timestampToDate(timestamp):
     someTime = datetime.fromtimestamp(timestamp)
     localStreamStart = utc_to_local(someTime)
-    return localStreamStart.strftime('%Y-%m-%d')
+    day = localStreamStart.strftime('%d').lstrip('0')
+    month = localStreamStart.strftime('%m').lstrip('0')
+    year = localStreamStart.strftime('%Y')
+    return day + "-" + month + "-" + year
+
+def weekDayFromTimestamp(timestamp):
+    days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+    weekday = datetime.fromtimestamp(timestamp).weekday()
+    return days[weekday]
 
 def findStreamTimes(workingDate, db):
     dayStart = calendar.timegm(workingDate.timetuple()) + 60*60*8
@@ -31,7 +43,7 @@ def findStreamTimes(workingDate, db):
     #  you execute all the queries you need
     cur = db.cursor()
 
-    queryStringStart = "SELECT time, game FROM bonjwa_stats WHERE time > " + str(dayStart) + " AND time < 1509865200 ORDER BY time ASC LIMIT 1"
+    queryStringStart = "SELECT time, game FROM bonjwa_stats WHERE time > " + str(dayStart) + " AND time < " + str(dayEnd) + " ORDER BY time ASC LIMIT 1"
     # Use all the SQL you like
     cur.execute(queryStringStart)
 
@@ -47,7 +59,7 @@ def findStreamTimes(workingDate, db):
 
     
 
-    queryStringEnd = "SELECT time FROM bonjwa_stats WHERE time < " + str(dayEnd) + " AND time < 1509865200 ORDER BY time DESC LIMIT 1"
+    queryStringEnd = "SELECT time FROM bonjwa_stats WHERE time < " + str(dayEnd) + " AND time > " + str(streamStart) + " ORDER BY time DESC LIMIT 1"
     # Use all the SQL you like
     cur.execute(queryStringEnd)
 
@@ -82,7 +94,7 @@ def findNextGameTimestamp(startSearch, timeLimit, lastGame, db):
 
     return 0
 
-def buildAbstract(streamTimes, gameTimes):
+def buildAbstract(streamTimes, gameTimes, workingDateTimestamp):
     #read vod link template, build vod link block
     vodLinkTemplateFile = open("vod_link_template.html", "r") 
     vodTemplateString = vodLinkTemplateFile.read() 
@@ -105,19 +117,42 @@ def buildAbstract(streamTimes, gameTimes):
     oneDayTemplateString = oneDayTemplateFile.read() 
     oneDayTemplateFile.close()
 
-    oneDayAbstract = oneDayTemplateString.replace("DAY_TITLE", timestampToDate(streamTimes[0]))
+    oneDayTitle = weekDayFromTimestamp(workingDateTimestamp) + " " + timestampToDate(workingDateTimestamp).replace("-", ".")
+
+    oneDayAbstract = oneDayTemplateString.replace("DAY_TITLE", oneDayTitle)
     oneDayAbstract = oneDayAbstract.replace("VOD_LINK_BOX", vodLinkBlock)
+    oneDayAbstract = oneDayAbstract.replace("DAY_VIEW_GRAPH", timestampToDate(workingDateTimestamp))
 
+    fileName = timestampToDate(workingDateTimestamp) + ".html"    
+    print "GENERATING: " + fileName
 
-    abstractFile = open("testfile.txt","w")  
+    abstractFile = open(webrootPath + fileName,"w")  
     abstractFile.write(oneDayAbstract) 
     abstractFile.close()
 
     return 0
 
-def main():
+def generateGraph(streamTimes, workingDateTimestamp):
+    fileName = timestampToDate(workingDateTimestamp) + ".png"
+    baseURL = "\"http://127.0.0.1:3000/"
+    renderURL = "render/dashboard-solo/db/views"
+    paramURL = "?orgId=1&from=" + str(streamTimes[0]) + "000&to=" + str(streamTimes[1]) + "000&panelId=1&width=1000&height=500\""
+    outputParam = " -O " + webrootPath + fileName
 
-    workingDate = date(2017, 10, 29)
+    cmd = "wget " + baseURL + renderURL + paramURL + outputParam
+    print "calling: " + cmd
+    subprocess.call(cmd, shell=True)
+
+    return os.path.isfile(webrootPath + fileName) 
+
+def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('integers', metavar='N', type=int, nargs='+',help='an integer for the accumulator')
+    args = parser.parse_args()
+    print args
+
+    workingDate = date(args.integers[2], args.integers[1], args.integers[0])
+    workingDateTimestamp = calendar.timegm(workingDate.timetuple())
 
     # my code here
     db = MySQLdb.connect(host="localhost",    # your host, usually localhost
@@ -133,6 +168,11 @@ def main():
     print "stream start: " + str(streamTimes[0])
     print "stream end:   " + str(streamTimes[1])
 
+    #if not generateGraph(streamTimes, workingDateTimestamp):
+    #    print "cannot generate graph"
+    #    return
+
+
 
     nextGame = findNextGameTimestamp(streamTimes[0], streamTimes[1], "", db)
     gameTimes = [nextGame]
@@ -143,15 +183,9 @@ def main():
     
     print gameTimes
 
-    buildAbstract(streamTimes, gameTimes)
+    buildAbstract(streamTimes, gameTimes, workingDateTimestamp)
 
     db.close()
-
-    #wget "http://127.0.0.1:3000/render/dashboard-solo/db/views?orgId=1&from=1509791222&to=1509826562&panelId=1&width=1000&height=500&timeout=30000" -O test.png -T 30
-
-    #SELECT time FROM bonjwa_stats WHERE time > 1509778800 AND time < 1509865200 ORDER BY time ASC LIMIT 1
-    #SELECT time FROM bonjwa_stats WHERE time > 1509778800 AND time < 1509865200 ORDER BY time DESC LIMIT 1;
-
 
 if __name__ == "__main__":
     main()

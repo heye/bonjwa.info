@@ -4,7 +4,7 @@
     <meta name="twitter:card" content="summary" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Roboto:900" rel="stylesheet">
-    <link href="http://192.168.2.28/bonjwa.info/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
     <style>
 
 
@@ -116,7 +116,7 @@
     .oneDayContainer {
         /*background: #222;*/
         margin-bottom: 0.5rem;
-        border-bottom: 3px solid #222;
+        background: #131313;
     }
 
     .dayShareLinks {
@@ -130,19 +130,22 @@
 <body onload="onPageLoad()">
     <div id="header">
         <div id="bonjwainfo" class="standardButton">
-            <a href="http://192.168.2.28/bonjwa.info/">BONJWA.INFO</a>
+            <a href="/">BONJWA.INFO</a>
         </div>
         <div class="standardButton">
-            <a href="http://192.168.2.28/bonjwa.info/chat.html">CHAT</a>
+            <a href="/chat.html">CHAT</a>
         </div>
         <div class="standardButton">
-            <a href="http://192.168.2.28/bonjwa.info/about.html">ABOUT</a>
+            <a href="/about.html">ABOUT</a>
         </div>
     </div>
 
     <div id="main">
         <div id="selector">
             <div id="rwnd" class="standardButton timeNavButton" onclick="loadPrevious()">
+                < zurück
+            </div>
+            <div id="pageDateButton" class="timeNavButton" onclick="">
                 < zurück
             </div>
             <div id="fwd" class="standardButton timeNavButton" onclick="loadNext()">
@@ -153,43 +156,27 @@
         <div id="content">
             <div class="oneDayContainer">
                 <div id="day0"></div>
-                <div id="day0Sharing" class="dayShareLinks">
-                    <a class="twitter-share-button"
-                        href="https://twitter.com/intent/tweet?text=Hello%20world"
-                        data-size="large">
-                        Tweet
-                    </a>
-                </div>
             </div>
             <div class="oneDayContainer">
                 <div id="day1"></div>
-                <div id="day1Sharing" class="dayShareLinks">
-                    <a class="twitter-share-button"
-                        href="https://twitter.com/intent/tweet?text=Hello%20world"
-                        data-size="large">
-                        Tweet
-                    </a>
-                </div>
             </div>
             <div class="oneDayContainer">
                 <div id="day2"></div>
-                <div id="day2Sharing" class="dayShareLinks">
-                    <a class="twitter-share-button"
-                        href="https://twitter.com/intent/tweet?text=Hello%20world"
-                        data-size="large">
-                        Tweet
-                    </a>
-                </div>
             </div>
             <div class="oneDayContainer">
                 <div id="day3"></div>
-                <div id="day3Sharing" class="dayShareLinks">
-                    <a class="twitter-share-button"
-                        href="https://twitter.com/intent/tweet?text=Hello%20world"
-                        data-size="large">
-                        Tweet
-                    </a>
-                </div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day4"></div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day5"></div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day6"></div>
+            </div>
+            <div class="oneDayContainer">
+                <div id="day7"></div>
             </div>
         </div>
 
@@ -204,13 +191,10 @@
         //state variables
         var urlDate = new Date();
         var dayShift = 0;
-        var baseURL = "http://192.168.2.28/bonjwa.info/index.html";
+        var baseURL = "/index.html";
 
         function onPageLoad() {
             console.log("load complete");
-
-            //var inhalt = document.getElementById("pageDateButton");
-            //inhalt.textContent = pageDateName + ", " + pageDateDay + "." + pageDateMonth + "." + pageDateYear;
 
 
             var url = new URL(window.location.href);
@@ -249,6 +233,15 @@
             setURL(currentURL);
 
             loadWeek(oneDay, oneMonth, oneYear);
+                                
+                                
+                                
+            var days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            var dayDate = new Date(urlDate.getTime() + dayShift*60*60*24*1000)
+            var dayName = days[dayDate.getDay()];
+
+            var inhalt = document.getElementById("pageDateButton");
+            inhalt.textContent = dayName + " " + oneDay + "." + oneMonth + "." + oneYear;
         }
 
         function setURL(newURL){              
@@ -278,7 +271,7 @@
 
         function loadWeek(baseDay, baseMonth, baseYear){
             for(var i=0; i <7; i++){
-                var oneDay = urlDate.getDate()-1-i+dayShift;
+                var oneDay = urlDate.getDate()-i+dayShift;
                 var oneMonth = urlDate.getMonth()+1;
                 var oneYear = urlDate.getFullYear();
                 while(oneDay < 1){
@@ -301,7 +294,7 @@
             console.log("loading " + filename + " to " + number);
 
 
-            var queryURL = "http://192.168.2.28/bonjwa.info/" + filename + ".html";
+            var queryURL = "/" + filename + ".html";
             var dayDivID = "day" + number;
             var dayShareDivID = dayDivID + "Sharing";
 
@@ -313,6 +306,9 @@
                         href='https://twitter.com/intent/tweet?text=Hello%20world'
                         data-size='large'>
                         Tweet</a>`;*/
+                }
+                else{
+                    document.getElementById(dayDivID).innerHTML = "";
                 }
             };
             xhttp.open("GET",queryURL , true);
